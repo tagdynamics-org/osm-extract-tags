@@ -1,4 +1,4 @@
-## osm-tag-extract
+# osm-tag-extract
 
 `osm-tag-extract` is a utility built around [node-osmium](https://github.com/osmcode/node-osmium) for extracting selected tags from OpenStreetMap (OSM) history data extracts. The output data is written to a JSONL file.
 
@@ -16,7 +16,7 @@ One line is written to the output JSONL file for each map element that at some p
   "N40",[
     [1276372410, 1, 1, ["1:v2"]],
     [1277305733, 4, 0, []],
-    [1277305733, 5, 0, []],
+    [1277305733, 5, 1, []],
     [1279547722, 9, 1, ["0:v2", "1:v2", "2:v3"]]
   ]
 ]
@@ -46,9 +46,9 @@ To view the history for a map element, one can open `https://www.openstreetmap.o
 
 Map elements are **versioned** and **timestamped**. So editing an object creates a new version of the object with updated data. Similarly, objects are **deleted** by creating a new version with a visible flag set to false. Thus, any changes or deletes can be reverted.
 
-## OpenStreetMap data dumps
+## OpenStreetMap data exports
 
-Various snapshots are available of the full OSM data:
+Various data exports are available of the OSM data:
 
 - the latest data (with no edit histories): [updated daily](https://wiki.openstreetmap.org/wiki/Planet.osm) (~40GB as of 7/2018).
 - the full history [updated weekly](https://planet.openstreetmap.org/planet/full-history/), (~65GB as of 7/2018).
