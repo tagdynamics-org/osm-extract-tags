@@ -1,15 +1,15 @@
 ## osm-tag-extract
 
-`osm-tag-extract` is a utility built around [node-osmium](https://github.com/osmcode/node-osmium) for extracting selected tags from OpenStreetMap (OSM) history dumps. The output data is written to an JSONL file (one line per map element containing data for all revisions for that map element).
+`osm-tag-extract` is a utility built around [node-osmium](https://github.com/osmcode/node-osmium) for extracting selected tags from OpenStreetMap (OSM) history data extracts. The output data is written to a JSONL file.
 
- - The entire input file never needs to be loaded into memory. For example, even if the entire OpenStreetMap dump with historical revisions is ~66G (as of 7/2018), this can be processed by streaming on a low-end machine w. only 4G of memory in ~30 hours.
- - Can read input OSM files in various formats, see node-osmium for details. `osm-streamer` can also be used on snapshots without historical revisions.
- - With some modifications, it could also be used to extract other data.
+ - See below for output format.
+ - Files are processed by streaming, and the entire input file is never loaded into memory at the same time. For example, even if the entire OpenStreetMap dump with historical revisions is large (~66G as of 7/2018), this can be processed on a low-end machine w. only 4GB of memory in ~30 hours.
+ - Can read input OSM files in various formats, see node-osmium [for details](https://github.com/osmcode/node-osmium/blob/master/doc/tutorial.md). `osm-tag-extract` can also be used on snapshots without historical revisions.
  - Requires Node.JS v. 8.
 
 ## Output format
 
-Each map element that at some point in its history has had at least one of the selected tags outputs a line to the JSON file with the below format (pretty formatted for easier reading):
+One line is written to the output JSONL file for each map element that at some point has been tagged with any of the tags selected for extraction. Example line (pretty formatted for easier reading):
 
 ```
 [
@@ -22,13 +22,13 @@ Each map element that at some point in its history has had at least one of the s
 ]
 ```
 
-  - `N235` indicates that this is the history for node 40. Similarly, `W40` and `R40` would refer to way 40 or relation 40.
-  - The second component is an array that show tag changes in: 1) the selected tags and 2) changes in the visible status.
+  - `N40` indicates that this is the history for node 40. Similarly, `W40` and `R40` would refer to way 40 or relation 40.
+  - The second component is an array that show changes in: 1) the selected tags and/or 2) changes in the visible status.
   - For example, for `[1276372410, 1, 1, ["1:v2"]]`,
-    - the first component 1276372410 is the unix epoch timestamp (in seconds). 
+    - the first component 1276372410 is the unix epoch timestamp (in seconds) for this version.
     - the second component 1 is the version number.
     - the third component 1 indicates visible status (0=not visible/deleted, 1=visible). 
-    - the last array lists which of the selected tags are set. Eg. if the list of selected tags are `["amenity", "shop", "man_made"]`, then `1:v2` indicates that `shop` is set to `v2`.
+    - the last array lists which of the selected tags are set. Eg. if the list of selected tags are `["amenity", "shop", "man_made"]`, then `1:v2` indicates that `shop` is set to `v2`. The indices are hexadecimal, ie. `a:v2` would refer to the 11th tag.
 
 ## Short summary of OpenStreetMap data format
 
@@ -42,7 +42,7 @@ The raw data for [OpenStreetMap](https://openstreetmap.org) is a database contai
 
 See [OSM Wiki](https://wiki.openstreetmap.org/wiki/Elements).
 
-To view the history for a map element, one can open `https://www.openstreetmap.org/[node|way|relation]/<number>/history`, and click "Download XML". (For nodes, most random numbers, say, <1e6 seem to work). The meaning of map objects are described using key-value **tags**. For example, the tags `{"amenity": "bench", "backrest": "yes"}` indicate that a map element is a park bench.
+To view the history for a map element, one can open `https://www.openstreetmap.org/[node|way|relation]/<number>/history`, and click "Download XML". (For nodes, most random numbers, say, below 10000 seem to work). The meaning of map objects are described using key-value **tags**. For example, the tags `{"amenity": "bench", "backrest": "yes"}` indicate that a map element is a park bench.
 
 Map elements are **versioned** and **timestamped**. So editing an object creates a new version of the object with updated data. Similarly, objects are **deleted** by creating a new version with a visible flag set to false. Thus, any changes or deletes can be reverted.
 
@@ -50,8 +50,8 @@ Map elements are **versioned** and **timestamped**. So editing an object creates
 
 Various snapshots are available of the full OSM data:
 
-- the latest data (with no edit histories): [updated daily](https://wiki.openstreetmap.org/wiki/Planet.osm), ~40GB (as of 7/2018).
-- the full history [updated weekly](https://planet.openstreetmap.org/planet/full-history/), ~65GB (as of 7/2018).
+- the latest data (with no edit histories): [updated daily](https://wiki.openstreetmap.org/wiki/Planet.osm) (~40GB as of 7/2018).
+- the full history [updated weekly](https://planet.openstreetmap.org/planet/full-history/), (~65GB as of 7/2018).
 
 For fast processing, one should use the pbf input files (protobuf based).
 
@@ -82,11 +82,11 @@ Note:
  - colons (or commas) are not allowed in the selected tags, see Output format above.
  - See the [taginfo](https://taginfo.openstreetmap.org/) website to explore tags and more details about tags. 
 
-### Run on the full OSM history dump
+### Run on the full OSM history
 
-Dumping OSM data typically have long run times and require lots of temporary space. For this purpose cloud instances may be used. 
+Extracting data from large OSM extracts have long run times and require lots of temporary space. For this purpose cloud instances may be used. 
 
-The below instructions are written for computing on AWS using: 
+The below instructions describe how this can be done on AWS using: 
 
  - 64 bit Ubuntu Server 14.04 (Trusty) LTS.
  - AWS t2.medium (2vCPU, 4G memory). Pricing: [current gen](https://aws.amazon.com/ec2/pricing/on-demand/) [past generations](https://aws.amazon.com/ec2/previous-generation/)
@@ -96,7 +96,7 @@ The below instructions are written for computing on AWS using:
   # log into instance and install dependencies
   sudo apt-get -y update && sudo apt-get -y upgrade
   sudo apt-get -y install git zip mg tmux
-  git clone ...
+  git clone git@github.com:tagdynamics-org/osm-extract-tags.git
 
   # Install docker as described here 
   #  https://docs.docker.com/install/linux/docker-ce/ubuntu/#set-up-the-repository
@@ -113,16 +113,16 @@ The below instructions are written for computing on AWS using:
   mkdir -p /data/osm-input      # files downloaded directly from OSM
   mkdir -p /data/out            # everything we compute
 
-  # The below takes ~30 minutes (35.1MB/s).
-  # Size: ~67G, or (70G, G=1e12))
+  # The below takes ~30 minutes (35.1MB/s), size: ~67G.
   wget -O /data/osm-input/history.osm.pbf   https://planet.openstreetmap.org/pbf/full-history/history-latest.osm.pbf
   wget -O /data/osm-input/history.osm.pbf.md5 https://planet.openstreetmap.org/pbf/full-history/history-latest.osm.pbf.md5
 
   cd /code
   npm install
   npm run test
-  # set $TAGS (see above)
-  # The below step will take ~31 hours. Output size: ~56G or (59G, G=1e12)
+
+  # select tags to extract (set eg. $TAGS as above)
+  # The below step will take ~31 hours. Output JSONL size: ~56G.
   time npm run tag-extract --tags=$TAGS --input-file=/data/osm-input/history.osm.pbf --output-file=/data/out/tag-history.jsonl
 ```
 

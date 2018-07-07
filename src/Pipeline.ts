@@ -54,7 +54,7 @@ function outputFormatter(outLine: OutputRevision[]): any {
 }
 
 function compressRevision(rs: OutputRevision[]): OutputRevision[] | null {
-  // Remove revisions that repeat (visible, tag)-state of previous revision.
+  // Remove revisions with repeating (visible, tag)-state
   const summary = removeRepeated(rs, (x, y) => (x.visible === y.visible) && arraysEqual(x.tags, y.tags));
 
   if (summary.length === 0) {
@@ -71,7 +71,7 @@ function compressRevision(rs: OutputRevision[]): OutputRevision[] | null {
 function applyMainPipeline(tagsToExtract: string[], inStream: Highland.Stream<MapElement[]>):
   Highland.Stream<OutputRevision[]> {
   return inStream
-    .map((revisions) => revisions.map(((e) => tagExtractor(tagsToExtract, e)))) // stream of OutputRevision[]:s
+    .map((revisions) => revisions.map(((e) => tagExtractor(tagsToExtract, e))))
     .map(compressRevision)
     .filter((rs) => rs !== null);
 }
