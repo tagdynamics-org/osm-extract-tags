@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "outDir": "build",
+    "moduleResolution": "node",
+    "module": "amd",
+    "target": "es2015",
+    "module": "commonjs",
+    "allowJs": true
+  },
+  "include": ["src/**/*", "test-data/*"]
+}
