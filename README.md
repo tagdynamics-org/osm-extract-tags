@@ -57,7 +57,13 @@ For fast processing, one should use the pbf input files (protobuf based).
 
 ### Run unit tests
 
+The tests rely on synthetic test data which (due to its somewhat large size) is stored in a separate [testdata](https://github.com/tagdynamics-org/testdata) repo.
+
 ```bash
+  # clone this repo with `--recurse-submodules` to fetch also test data
+  git clone --recurse-submodules git@github.com:tagdynamics-org/osm-extract-tags.git
+
+  # running tests
   npm run test
   npm run test:watch
 ```
