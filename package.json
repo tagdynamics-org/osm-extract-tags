@@ -1,7 +1,7 @@
 {
   "name": "osm-tag-extract",
   "version": "0.1.0",
-  "description": "Tool to extract tag data from an OpenStreetMap data export",
+  "description": "Tool to extract tag metadata from OpenStreetMap data exports",
   "main": "./src/index.ts",
   "dependencies": {
     "@types/highland": "^2.10.8",
@@ -38,7 +38,7 @@
     "url": "git@github.com:tagdynamics-org/osm-extract-tags.git"
   },
   "keywords": [
-    "openstreetmap", "osm", "tags", "export", "metadata", "tool", "data"
+    "openstreetmap", "osm", "tags", "export", "metadata-extraction", "tool", "data"
   ],
   "author": "Matias Dahl",
   "license": "UNLICENSED",
