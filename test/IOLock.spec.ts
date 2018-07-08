@@ -13,10 +13,8 @@ function getInputData(): Promise<MapElement[]> {
   return toPromise(inputStream);
 }
 
-// create as:
-//  npm run tag-extract --tags=k1,k2,k3 \
-//                      --input-file=./testdata/1-synth-osm-data.xml \
-//                      --output-file=./testdata/2-extracted-osm-metadata.jsonl
+// See `testdata` repo (https://github.com/tagdynamics-org/testdata) for details on how
+// to create `2-extracted-osm-metadata.jsonl`.
 function getCachedOutput(): any[] {
   const outputSnapshot = "./testdata/2-extracted-osm-metadata.jsonl";
   return readJSONL(outputSnapshot);
