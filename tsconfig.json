@@ -7,5 +7,5 @@
     "module": "commonjs",
     "allowJs": true
   },
-  "include": ["src/**/*", "test-data/*"]
+  "include": ["src/**/*", "test/**/*"]
 }

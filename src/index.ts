@@ -4,7 +4,7 @@ import { writeJSONL } from "./utils/StreamUtils";
 import { osmStreamFrom, groupRevisions, MapElement } from "./OSM/OSMIterator";
 import { applyMainPipeline, outputFormatter } from "./Pipeline";
 
-console.log(" *** Tool for extracting tag data from an OpenStreetMap data export ***");
+console.log(" *** Tool for extracting tag data from OpenStreetMap data exports ***");
 
 const inputFile: string = process.env.npm_config_input_file;
 const outputFile: string = process.env.npm_config_output_file;
