@@ -3,8 +3,8 @@
 `osm-tag-extract` is a utility to extract selected tag metadata from an OpenStreetMap (OSM) history data extract. The output data is written to a JSONL file (see below).
 
  - Relies heavily on [node-osmium](https://github.com/osmcode/node-osmium) for reading and parsing OSM input files. For a list of supported input formats, see the node-osmium [documentation](https://github.com/osmcode/node-osmium/blob/master/doc/tutorial.md).
- - Files are processed by streaming, and the entire input file is never loaded into memory at the same time. For example, even if the entire OpenStreetMap dump with historical revisions is large (~65GB as of 7/2018), this can be processed on a low-end machine w. only 4GB of memory in ~30 hours. See below for further details on this.
- - `osm-tag-extract` can also be used on snapshots without historical revisions.
+ - Files are processed by streaming, and the entire input file is never loaded into memory at the same time. For example, even if the entire OpenStreetMap dump with historical revisions is large (~65GB as of 7/2018), this can be processed on a low-end cloud instance w. only 4GB of memory in ~30 hours. See below for further details on this.
+ - `osm-tag-extract` can also be used to extract tag metadata from latest snapshots (data exports without historical revisions).
  - Requires Node.JS version 8.
 
 ## Output format
@@ -55,15 +55,18 @@ For fast processing, one should use the pbf input files (protobuf based).
 
 ## Running
 
-### Run unit tests
-
-The tests rely on synthetic test data which (due to its somewhat large size) is stored in a separate [testdata](https://github.com/tagdynamics-org/testdata) repo.
+The tests rely on synthetic test data which (due to its somewhat large size) is stored in a separate [testdata](https://github.com/tagdynamics-org/testdata) [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules). Clone the repo with `--recurse-submodules` to also fetch test data.
 
 ```bash
-  # clone this repo with `--recurse-submodules` to fetch also test data
   git clone --recurse-submodules git@github.com:tagdynamics-org/osm-extract-tags.git
+```
 
-  # running tests
+Fetching the test data is not needed to just run `osm-tag-extract`.
+
+### Run unit tests
+
+```
+  npm install
   npm run test
   npm run test:watch
 ```
@@ -71,6 +74,7 @@ The tests rely on synthetic test data which (due to its somewhat large size) is 
 ### Extract tags from an OSM file
 
 ```bash
+  npm install
   npm run tag-extract --tags=tags,to,extract --input-file=<input osm file> --output-file=<output.jsonl>
 ```
 
@@ -123,7 +127,6 @@ The below instructions describe how this can be done on AWS using:
 
   cd /code
   npm install
-  npm run test
 
   # select tags to extract (set eg. $TAGS as above)
   # The below step will take ~31 hours. Output JSONL size: ~56G.
