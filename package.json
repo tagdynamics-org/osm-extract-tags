@@ -41,7 +41,7 @@
     "openstreetmap", "osm", "tags", "export", "metadata-extraction", "tool", "data"
   ],
   "author": "Matias Dahl",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/tagdynamics-org/osm-extract-tags/issues"
   },

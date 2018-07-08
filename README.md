@@ -139,7 +139,7 @@ Ideas, questions or contributions are welcome.
 
 ## License
 
-Copyright 2018 Matias Dahl.
+Copyright 2018 Matias Dahl. Released under the [MIT](LICENSE.md) license.
 
-This utility is designed to process OpenStreetMap data. This data is available under the [Open Database License](https://openstreetmap.org/copyright). See also the [OSMF wiki](https://wiki.openstreetmap.org/wiki/GDPR) regarding OpenStreetMap data and the [GDPR](https://gdpr-info.eu/).
+Please note that `osm-tag-extract` is designed to process OpenStreetMap data. This data is available under the [Open Database License](https://openstreetmap.org/copyright). See also the [OSMF wiki](https://wiki.openstreetmap.org/wiki/GDPR) regarding OpenStreetMap data and the [GDPR](https://gdpr-info.eu/).
 
