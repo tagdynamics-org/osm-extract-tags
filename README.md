@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/tagdynamics-org/osm-extract-tags.svg?branch=master)](https://travis-ci.org/tagdynamics-org/osm-extract-tags)
+
 # osm-tag-extract
 
 `osm-tag-extract` is a utility to extract selected tag metadata from an OpenStreetMap (OSM) history data extract. The output data is written to a JSONL file (see below).
