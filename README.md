@@ -106,7 +106,7 @@ The below instructions describe how this can be done on AWS using:
   # log into instance and install dependencies
   sudo apt-get -y update && sudo apt-get -y upgrade
   sudo apt-get -y install git zip mg tmux
-  git clone git@github.com:tagdynamics-org/osm-extract-tags.git
+  git clone --recurse-submodules https://github.com/tagdynamics-org/osm-extract-tags.git
 
   # Install docker as described here 
   #  https://docs.docker.com/install/linux/docker-ce/ubuntu/#set-up-the-repository
@@ -116,23 +116,29 @@ The below instructions describe how this can be done on AWS using:
   sudo apt-get update && sudo apt-get -y install docker-ce
 
   # start shell in node8 container
+  tmux
   sudo docker pull node:8.11.3
-  sudo docker run -v `pwd`/data/:/data -v `pwd`/osm-streamer:/code -it --rm node:8.11.3 /bin/bash
+  sudo docker run -v `pwd`/data/:/data -v `pwd`/osm-extract-tags:/code -it --rm node:8.11.3 /bin/bash
 
-  # run inside docker
-  mkdir -p /data/osm-input      # files downloaded directly from OSM
-  mkdir -p /data/out            # everything we compute
+  # run inside docker (as a script)
+  set -eux 
+  mkdir -p /data/osm-input                # files downloaded directly from OSM
+  mkdir -p /data/tag-metadata   # everything we compute
 
   # The below takes ~30 minutes (35.1MB/s), size: ~67G.
+  date -I > /data/osm-input/download-date
   wget -O /data/osm-input/history.osm.pbf   https://planet.openstreetmap.org/pbf/full-history/history-latest.osm.pbf
   wget -O /data/osm-input/history.osm.pbf.md5 https://planet.openstreetmap.org/pbf/full-history/history-latest.osm.pbf.md5
+  # TODO: check that checksum is correct
 
   cd /code
   npm install
+  npm run test
 
   # select tags to extract (set eg. $TAGS as above)
   # The below step will take ~31 hours. Output JSONL size: ~56G.
-  time npm run tag-extract --tags=$TAGS --input-file=/data/osm-input/history.osm.pbf --output-file=/data/out/tag-history.jsonl
+  export TAGS=<see above>
+  time npm run tag-extract --tags=$TAGS --input-file=/data/osm-input/history.osm.pbf --output-file=/data/tag-metadata/tag-history.jsonl
 ```
 
 ## Contributions
