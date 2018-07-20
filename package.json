@@ -31,7 +31,7 @@
     "lint": "tslint -c tslint.json './src/**/*.ts' 'test/**/*.ts'",
     "test": "mocha -r ts-node/register \"test/**/*.spec.ts\"",
     "test:watch": "mocha -r ts-node/register --watch \"test/**/*.spec.ts\" --watch-extensions ts",
-    "tag-extract": "tsc -p ./ && node build/index.js"
+    "tag-extract": "tsc -p ./ && node build/src/index.js"
   },
   "repository": {
     "type": "git",
