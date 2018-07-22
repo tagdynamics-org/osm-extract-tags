@@ -136,7 +136,7 @@ The below instructions describe how this can be done on AWS using:
   npm run test
 
   # select tags to extract (set eg. $TAGS as above)
-  # The below step will take ~31 hours. Output JSONL size: ~56G.
+  # The below step will take ~33.5 hours. Output JSONL size: ~29G
   export TAGS=<see above>
   time npm run tag-extract --tags=$TAGS --input-file=/data/osm-input/history.osm.pbf --output-file=/data/tag-metadata/tag-history.jsonl
 ```
