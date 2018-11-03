@@ -103,42 +103,93 @@ The below instructions describe how this can be done on AWS using:
  - 175G of "General purpose SSD" (TODO: check how much is really needed)
 
 ```bash
-  # log into instance and install dependencies
-  sudo apt-get -y update && sudo apt-get -y upgrade
-  sudo apt-get -y install git zip mg tmux
-  git clone --recurse-submodules https://github.com/tagdynamics-org/osm-extract-tags.git
+# log into instance and install dependencies
+sudo apt-get -y update && sudo apt-get -y upgrade
+sudo apt-get -y install git zip mg tmux
+git clone --recurse-submodules https://github.com/tagdynamics-org/osm-extract-tags.git
 
-  # Install docker as described here 
-  #  https://docs.docker.com/install/linux/docker-ce/ubuntu/#set-up-the-repository
-  sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-  sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-  sudo apt-get update && sudo apt-get -y install docker-ce
+# Install docker as described here 
+#  https://docs.docker.com/install/linux/docker-ce/ubuntu/#set-up-the-repository
+sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt-get update && sudo apt-get -y install docker-ce
 
-  # start shell in node8 container
-  tmux
-  sudo docker pull node:8.11.3
-  sudo docker run -v `pwd`/data/:/data -v `pwd`/osm-extract-tags:/code -it --rm node:8.11.3 /bin/bash
+# start shell in node8 container
+tmux
+sudo docker pull node:8.11.3
+sudo docker run -v `pwd`/data/:/data -v `pwd`/osm-extract-tags:/code -it --rm node:8.11.3 /bin/bash
 
-  # run inside docker (as a script)
-  set -eux 
-  mkdir -p /data/osm-input                # files downloaded directly from OSM
-  mkdir -p /data/tag-metadata   # everything we compute
+# run inside docker (as a script)
+set -eux 
+mkdir -p /data/osm-input                # files downloaded directly from OSM
+mkdir -p /data/tag-metadata   # everything we compute
 
-  # The below takes ~30 minutes (35.1MB/s), size: ~67G.
-  date -I > /data/osm-input/download-date
-  wget -O /data/osm-input/history.osm.pbf   https://planet.openstreetmap.org/pbf/full-history/history-latest.osm.pbf
-  wget -O /data/osm-input/history.osm.pbf.md5 https://planet.openstreetmap.org/pbf/full-history/history-latest.osm.pbf.md5
-  # TODO: check that checksum is correct
+# The below takes ~30 minutes (35.1MB/s), size: ~67G.
+date -I > /data/osm-input/download-date
+wget -O /data/osm-input/history.osm.pbf   https://planet.openstreetmap.org/pbf/full-history/history-latest.osm.pbf
+wget -O /data/osm-input/history.osm.pbf.md5 https://planet.openstreetmap.org/pbf/full-history/history-latest.osm.pbf.md5
+# TODO: check that checksum is correct
 
-  cd /code
-  npm install
-  npm run test
+cd /code
+npm install
+npm run test
 
-  # select tags to extract (set eg. $TAGS as above)
-  # The below step will take ~33.5 hours. Output JSONL size: ~29G
-  export TAGS=<see above>
-  time npm run tag-extract --tags=$TAGS --input-file=/data/osm-input/history.osm.pbf --output-file=/data/tag-metadata/tag-history.jsonl
+# select tags to extract (set eg. $TAGS as above)
+# The below step will take ~33.5 hours. Output JSONL size: ~29G
+export TAGS=<see above>
+time npm run tag-extract --tags=$TAGS --input-file=/data/osm-input/history.osm.pbf --output-file=/data/tag-metadata/tag-history.jsonl
+  
+## Packaging and uploading data to s3
+set -eux
+
+# Before running set output bucket name
+#
+# export S3_OUTPUT_BUCKET_NAME=
+#
+
+# See
+# https://stackoverflow.com/questions/23929235/multi-line-string-with-extra-space-preserved-indentation
+LICENSE_NOTICE=`cat << END
+The data files in this zip-file are extracted from the full
+OpenStreetMap data export that include all edit histories.
+
+This data is (c) OpenStreetMap contributors and distributed
+under the Open Database License (ODbL), see:
+
+    https://www.openstreetmap.org/copyright
+
+The download date and md5 checksum of the original .osm.pb
+data export are included in this zip file. These can be used to
+determine the exact data dump that was used.
+
+For further details on how the data was extracted and
+processed, please see the source repositories
+  
+  - https://github.com/tagdynamics-org/osm-extract-tags
+  - https://github.com/tagdynamics-org/osm-tag-aggregator
+
+matias.dahl@iki.fi
+END
+`
+
+# ubuntu should have access to data directory (created by root running docker)
+sudo chgrp -R ubuntu data
+sudo chown -R ubuntu data
+
+echo "$LICENSE_NOTICE" > ./data/OSM_LICENSE.txt
+
+export DATA_DIR=./data/
+export DOWNLOAD_DATE=`cat data/osm-input/download-date`
+
+zip osm-transitions-${DOWNLOAD_DATE}.zip \
+    $DATA_DIR/OSM_LICENSE.txt \
+    $DATA_DIR/osm-input/download-date \
+    $DATA_DIR/osm-input/history.osm.pbf.md5 \
+    $DATA_DIR./tag-metadata/tag-history.jsonl
+
+# TODO: install s3cmd v1.5+ to support AWS IAM roles. Ensure instance has a role attached with s3 access
+s3cmd put osm-transitions-${DOWNLOAD_DATE}.zip s3://$S3_OUTPUT_BUCKET_NAME/  
 ```
 
 ## Contributions
