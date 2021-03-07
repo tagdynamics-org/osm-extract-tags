@@ -26,8 +26,8 @@ const inputStream: Highland.Stream<MapElement> = _(osmStreamFrom(inputFile));
 let lines = 0;
 function logger() {
   lines += 1;
-  if (lines % 1000 === 0) {
-    console.log(` - Outputted ${lines} map elements ...`);
+  if (lines % 5000000 === 0) {
+    console.log(`> At ${lines} map elements`);
   }
 }
 
